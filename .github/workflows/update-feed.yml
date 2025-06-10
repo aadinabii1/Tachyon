@@ -2,20 +2,23 @@ name: Update FortiGate External Feed
 
 on:
   push:
+    branches:
+      - main
     paths:
-      - 'feed.txt'
+      - feed.txt
 
 jobs:
   update-feed:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
- - name: Send Feed to FortiGate
+      - name: Send feed.txt to FortiGate
         run: |
-          echo "Sending feed.txt to FortiGate"
+          echo "Sending feed.txt to FortiGate..."
+
           curl -k -X POST \
             -H "Authorization: Bearer ${{ secrets.FGT_API_TOKEN }}" \
             -H "Content-Type: text/plain" \
