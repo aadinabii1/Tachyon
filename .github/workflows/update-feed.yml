@@ -1,7 +1,9 @@
 name: Send Threat Feed to FortiGate
 
 on:
-  workflow_dispatch:
+  push:
+    paths:
+      - feed.txt  # Trigger workflow only when feed.txt changes
 
 jobs:
   send-feed:
