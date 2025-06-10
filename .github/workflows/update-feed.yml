@@ -14,10 +14,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Read feed.txt and format as JSON array
+        id: prepare
+        run: |
+          entries=$(jq -R . feed.txt | jq -s .)
+          echo "ENTRIES=$entries" >> "$GITHUB_OUTPUT"
+
       - name: Send feed to FortiGate
         run: |
           echo "Sending feed to FortiGate..."
-
+          
           curl -k -X POST \
             -H "Authorization: Bearer ${{ secrets.FGT_API_TOKEN }}" \
             -H "Content-Type: application/json" \
@@ -26,12 +32,8 @@ jobs:
                 {
                   "name": "Test1",
                   "command": "add",
-                  "entries": [
-                    "entry1",
-                    "entry2",
-                    "entry3"
-                  ]
+                  "entries": '"${{ steps.prepare.outputs.ENTRIES }}"'
                 }
               ]
             }' \
-            "https://172.16.85.251:8443/api/v2/monitor/system/external-resource/dynamic?vdom=TSIND"
+            "https://83.174.140.148:8443/api/v2/monitor/system/external-resource/dynamic?vdom=TSIND"
