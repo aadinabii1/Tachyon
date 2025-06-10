@@ -1,29 +1,28 @@
-name: Update FortiGate Feed
+name: Send Threat Feed to FortiGate
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
-  update-feed:
+  send-feed:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Read feed.txt and format as JSON array
         id: prepare
         run: |
-          entries=$(jq -R . feed.txt | jq -s .)
-          echo "ENTRIES=$entries" >> "$GITHUB_OUTPUT"
+          entries=$(jq -R . feed.txt | jq -cs .)
+          echo "ENTRIES_JSON<<EOF" >> $GITHUB_ENV
+          echo "$entries" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Send feed to FortiGate
         run: |
-          echo "Sending feed to FortiGate..."
-          
+          echo "Sending feed.txt to FortiGate..."
+
           curl -k -X POST \
             -H "Authorization: Bearer ${{ secrets.FGT_API_TOKEN }}" \
             -H "Content-Type: application/json" \
@@ -32,7 +31,7 @@ jobs:
                 {
                   "name": "Test1",
                   "command": "add",
-                  "entries": '"${{ steps.prepare.outputs.ENTRIES }}"'
+                  "entries": '"$ENTRIES_JSON"'
                 }
               ]
             }' \
