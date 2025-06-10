@@ -32,7 +32,7 @@ jobs:
               "commands": [
                 {
                   "name": "Test1",
-                  "command": "add",
+                  "command": "snapshot",
                   "entries": '"$ENTRIES_JSON"'
                 }
               ]
